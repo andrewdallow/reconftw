@@ -3584,8 +3584,8 @@ function url_gf() {
 
 		start_func "${FUNCNAME[0]}" "Vulnerable Pattern Search"
 
-		# Ensure webs_nuclei.txt exists and is not empty
-		if [[ -s "webs/webs_nuclei.txt" ]]; then
+		# Ensure webs/url_extract_nodupes.txt exists and is not empty
+		if [[ -s "webs/url_extract_nodupes.txt" ]]; then
 			# Define an array of GF patterns
 			declare -A gf_patterns=(
 				["xss"]="gf/xss.txt"
@@ -3604,13 +3604,14 @@ function url_gf() {
 				printf "${yellow}\n[$(date +'%Y-%m-%d %H:%M:%S')] Running: GF Pattern '$pattern'${reset}\n\n"
 				if [[ $pattern == "potential" ]]; then
 					# Special handling for 'potential' pattern
-					gf "$pattern" "webs/webs_nuclei.txt" | cut -d ':' -f3-5 | anew -q "$output_file"
+					gf "$pattern" "webs/url_extract_nodupes.txt" | cut -d ':' -f3-5 | anew -q "$output_file"
 				elif [[ $pattern == "redirect" && -s "gf/ssrf.txt" ]]; then
-					# Append SSFR results to redirect if ssrf.txt exists
-					gf "$pattern" "webs/webs_nuclei.txt" | anew -q "$output_file"
+					# Append SSRF results to redirect if ssrf.txt exists
+					gf "$pattern" "webs/url_extract_nodupes.txt" | anew -q "$output_file"
+					cat "gf/ssrf.txt" | anew -q "$output_file"
 				else
 					# General handling for other patterns
-					gf "$pattern" "webs/webs_nuclei.txt" | anew -q "$output_file"
+					gf "$pattern" "webs/url_extract_nodupes.txt" | anew -q "$output_file"
 				fi
 			done
 
