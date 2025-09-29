@@ -3312,11 +3312,14 @@ function fuzz() {
 				wget -q -O - ${fuzzing_remote_list} >.tmp/fuzzing_remote_list.txt
 				axiom-scan webs/webs_all.txt -m ffuf -wL .tmp/fuzzing_remote_list.txt -H "${HEADER}" $FFUF_FLAGS -s -maxtime $FFUF_MAXTIME -oJ $dir/.tmp/ffuf-content.json $AXIOM_EXTRA_ARGS 2>>"$LOGFILE" >/dev/null
 
-				for sub in $(cat webs/webs_all.txt); do
-					sub_out=$(echo $sub | sed -e 's|^[^/]*//||' -e 's|/.*$||')
-					[ -s "$dir/.tmp/ffuf-content.json" ] && cat $dir/.tmp/ffuf-content.json | jq -r 'try .results[] | "\(.status) \(.length) \(.url)"' | grep $sub | sort -k1 | anew -q fuzzing/${sub_out}.txt
-				done
-				find $dir/fuzzing/ -type f -iname "*.txt" -exec cat {} + 2>>"$LOGFILE" | sort -k1 | anew -q $dir/fuzzing/fuzzing_full.txt
+        if [[ -s "$dir/.tmp/ffuf-content.json" ]]; then
+         interlace -tL webs/webs_all.txt -threads ${INTERLACE_THREADS} -c "
+              sub=\"_target_\"
+              sub_out=\$(echo \"\$sub\" | sed -e \"s|^[^/]*//||\" -e \"s|/.*$||\")
+              jq -r \"try .results[] | \\\"\(.status) \(.length) \(.url)\\\"\" \"$dir/.tmp/ffuf-content.json\" | grep \"\$sub\" | sort -k1 | anew -q fuzzing/\${sub_out}.txt
+          " 2>>"$LOGFILE" >/dev/null
+        fi
+				find "$dir/fuzzing/" -type f -iname "*.txt" -exec cat {} + 2>>"$LOGFILE" | sort -k1 | anew -q "$dir/fuzzing/fuzzing_full.txt"
 			fi
 			end_func "Results are saved in $domain/fuzzing/*subdomain*.txt" ${FUNCNAME[0]}
 		else
@@ -3498,9 +3501,9 @@ function urlchecks() {
 				if [[ $diff_webs != "0" ]] || [[ ! -s ".tmp/katana.txt" ]]; then
 					if [[ $URL_CHECK_ACTIVE == true ]]; then
 						if [[ $DEEP == true ]]; then
-							timeout 4h katana -silent -list webs/webs_all.txt -jc -kf all -c "$KATANA_THREADS" -d 3 -fs rdn -o .tmp/katana.txt 2>>"$LOGFILE" >/dev/null
+							timeout 4h katana -silent -list webs/webs_all.txt -jc -kf all -c "$KATANA_THREADS" -H "$HEADER" -d 3 -fs rdn -o .tmp/katana.txt 2>>"$LOGFILE" >/dev/null
 						else
-							timeout 3h katana -silent -list webs/webs_all.txt -jc -kf all -c "$KATANA_THREADS" -d 2 -fs rdn -o .tmp/katana.txt 2>>"$LOGFILE" >/dev/null
+							timeout 3h katana -silent -list webs/webs_all.txt -jc -kf all -c "$KATANA_THREADS" -H "$HEADER" -d 2 -fs rdn -o .tmp/katana.txt 2>>"$LOGFILE" >/dev/null
 						fi
 					fi
 				fi
@@ -3509,9 +3512,9 @@ function urlchecks() {
 				if [[ $diff_webs != "0" ]] || [[ ! -s ".tmp/katana.txt" ]]; then
 					if [[ $URL_CHECK_ACTIVE == true ]]; then
 						if [[ $DEEP == true ]]; then
-							axiom-scan webs/webs_all.txt -m katana -jc -kf all -d 3 -fs rdn --max-runtime 4h -o .tmp/katana.txt "$AXIOM_EXTRA_ARGS" 2>>"$LOGFILE" >/dev/null
+							axiom-scan webs/webs_all.txt -m katana -jc -kf all -H "$HEADER" -d 3 -fs rdn --max-runtime 4h -o .tmp/katana.txt "$AXIOM_EXTRA_ARGS" 2>>"$LOGFILE" >/dev/null
 						else
-							axiom-scan webs/webs_all.txt -m katana -jc -kf all -d 2 -fs rdn --max-runtime 3h -o .tmp/katana.txt "$AXIOM_EXTRA_ARGS" 2>>"$LOGFILE" >/dev/null
+							axiom-scan webs/webs_all.txt -m katana -jc -kf all -H "$HEADER" -d 2 -fs rdn --max-runtime 3h -o .tmp/katana.txt "$AXIOM_EXTRA_ARGS" 2>>"$LOGFILE" >/dev/null
 						fi
 					fi
 				fi
