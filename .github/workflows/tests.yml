@@ -22,16 +22,11 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macos-latest
 
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Install bash from homebrew
-        if: ${{ startsWith(matrix.os, 'macos-') }}
-        run: brew install bash
-
       - name: Checkout code
         uses: actions/checkout@v4
 
