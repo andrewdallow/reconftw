@@ -174,7 +174,6 @@ function tools_installed() {
 
 	declare -A tools_folders=(
 		["NUCLEI_TEMPLATES_PATH"]="${NUCLEI_TEMPLATES_PATH}"
-		["NUCLEI_FUZZING_TEMPLATES_PATH"]="${NUCLEI_FUZZING_TEMPLATES_PATH}"
 	)
 
 	declare -A tools_commands=(
@@ -4923,13 +4922,6 @@ function fuzzparams() {
 				if ! nuclei -update 2>>"$LOGFILE" >/dev/null; then
 					printf "%b[!] Nuclei update failed.%b\n" "$bred" "$reset"
 					end_func "Nuclei update failed." "${FUNCNAME[0]}"
-					return 1
-				fi
-
-				# Pull latest fuzzing templates
-				if ! git -C ${NUCLEI_FUZZING_TEMPLATES_PATH} pull 2>>"$LOGFILE"; then
-					printf "%b[!] Failed to pull latest fuzzing templates.%b\n" "$bred" "$reset"
-					end_func "Failed to pull latest fuzzing templates." "${FUNCNAME[0]}"
 					return 1
 				fi
 
