@@ -568,12 +568,7 @@ function initial_setup() {
 		eval git -C "${NUCLEI_TEMPLATES_PATH}" pull $DEBUG_STD
 		eval git -C "${NUCLEI_TEMPLATES_PATH}/extra_templates" pull $DEBUG_STD
 		eval git -C "${tools}/fuzzing-templates" pull $DEBUG_STD
-		eval nuclei -update-templates update-template-dir "${NUCLEI_TEMPLATES_PATH}" $DEBUG_STD
-	fi
-	
-	if [[ ! -d ${NUCLEI_FUZZING_TEMPLATES_PATH} ]]; then
-		mkdir -p ${NUCLEI_FUZZING_TEMPLATES_PATH} $DEBUG_STD
-		eval git clone https://github.com/projectdiscovery/fuzzing-templates "${NUCLEI_FUZZING_TEMPLATES_PATH}" $DEBUG_STD
+		eval nuclei -update-templates -update-template-dir "${NUCLEI_TEMPLATES_PATH}" $DEBUG_STD
 	fi
 
 	# sqlmap
