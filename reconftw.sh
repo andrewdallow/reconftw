@@ -2246,13 +2246,13 @@ function subtakeover() {
 			if ! nuclei -update 2>>"$LOGFILE" >/dev/null; then
 				printf "%b[!] Failed to update nuclei.%b\n" "$bred" "$reset"
 			fi
-			cat subdomains/subdomains.txt webs/webs_all.txt 2>/dev/null | nuclei -silent -nh -tags takeover \
+			cat subdomains/subdomains.txt webs/webs_all.txt 2>/dev/null | nuclei -H "$HEADER" -silent -nh -tags takeover \
 				-severity info,low,medium,high,critical -retries 3 -rl "$NUCLEI_RATELIMIT" \
 				-t "${NUCLEI_TEMPLATES_PATH}" -j -o .tmp/tko_json.txt 2>>"$LOGFILE" >/dev/null
 		else
 			cat subdomains/subdomains.txt webs/webs_all.txt 2>>"$LOGFILE" | sed '/^$/d' | anew -q .tmp/webs_subs.txt
 			if [[ -s ".tmp/webs_subs.txt" ]]; then
-				axiom-scan .tmp/webs_subs.txt -m nuclei --nuclei-templates "${NUCLEI_TEMPLATES_PATH}" \
+				axiom-scan .tmp/webs_subs.txt -m nuclei -H "$HEADER" --nuclei-templates "${NUCLEI_TEMPLATES_PATH}" \
 					-tags takeover -nh -severity info,low,medium,high,critical -retries 3 -rl "$NUCLEI_RATELIMIT" \
 					-t "${NUCLEI_TEMPLATES_PATH}" -j -o .tmp/tko_json.txt $AXIOM_EXTRA_ARGS 2>>"$LOGFILE" >/dev/null
 			fi
@@ -2800,7 +2800,7 @@ function screenshot() {
 		# Run nuclei or axiom-scan based on AXIOM flag
 		if [[ $AXIOM != true ]]; then
 			if [[ -s "webs/webs_all.txt" ]]; then
-				nuclei -headless -id screenshot -V dir='screenshots' <webs/webs_all.txt 2>>"$LOGFILE"
+				nuclei -H "$HEADER" -headless -id screenshot -V dir='screenshots' <webs/webs_all.txt 2>>"$LOGFILE"
 			fi
 		else
 			if [[ -s "webs/webs_all.txt" ]]; then
@@ -3211,7 +3211,7 @@ function nuclei_check() {
 			for crit in "${severity_array[@]}"; do
 				printf "${yellow}\n[$(date +'%Y-%m-%d %H:%M:%S')] Running: Nuclei Severity: $crit ${reset}\n\n"
 				# Run nuclei for each severity level
-				nuclei -l .tmp/webs_subs.txt -severity "$crit" -nh -rl "$NUCLEI_RATELIMIT" -silent -retries 2 ${NUCLEI_EXTRA_ARGS} -t ${NUCLEI_TEMPLATES_PATH} -j -o "nuclei_output/${crit}_json.txt" 2>>"$LOGFILE" >/dev/null
+				nuclei -H "$HEADER" -l .tmp/webs_subs.txt -severity "$crit" -nh -rl "$NUCLEI_RATELIMIT" -silent -retries 2 ${NUCLEI_EXTRA_ARGS} -t ${NUCLEI_TEMPLATES_PATH} -j -o "nuclei_output/${crit}_json.txt" 2>>"$LOGFILE" >/dev/null
 				# Parse the JSON output and save the results to a text file
 				if [[ -s "nuclei_output/${crit}_json.txt" ]]; then
 					jq -r '["[" + .["template-id"] + (if .["matcher-name"] != null then ":" + .["matcher-name"] else "" end) + "] [" + .["type"] + "] [" + .info.severity + "] " + (.["matched-at"] // .host) + (if .["extracted-results"] != null then " " + (.["extracted-results"] | @json) else "" end)] | .[]' nuclei_output/${crit}_json.txt >nuclei_output/${crit}.txt
@@ -3229,7 +3229,7 @@ function nuclei_check() {
 			for crit in "${severity_array[@]}"; do
 				printf "${yellow}\n[$(date +'%Y-%m-%d %H:%M:%S')] Running: Axiom Nuclei Severity: $crit. Check results in nuclei_output folder.${reset}\n\n"
 				# Run axiom-scan with nuclei module for each severity level
-				axiom-scan .tmp/webs_subs.txt -m nuclei \
+				axiom-scan .tmp/webs_subs.txt -m nuclei -H "$HEADER" \
 					--nuclei-templates "$NUCLEI_TEMPLATES_PATH" \
 					-severity "$crit" -nh -rl "$NUCLEI_RATELIMIT" \
 					-silent -retries 2 "$NUCLEI_EXTRA_ARGS" -j -o "nuclei_output/${crit}_json.txt" "$AXIOM_EXTRA_ARGS" 2>>"$LOGFILE" >/dev/null
@@ -4145,7 +4145,7 @@ function cors() {
 		# Proceed only if webs_all.txt exists and is non-empty
 		if [[ -s "webs/webs_all.txt" ]]; then
 			printf "${yellow}\n[$(date +'%Y-%m-%d %H:%M:%S')] Running: Corsy for CORS Scan${reset}\n\n"
-			"${tools}/Corsy/venv/bin/python3" "${tools}/Corsy/corsy.py" -i "webs/webs_all.txt" -o "vulns/cors.txt" 2>>"$LOGFILE" >/dev/null
+			"${tools}/Corsy/venv/bin/python3" "${tools}/Corsy/corsy.py" -i "webs/webs_all.txt" -o "vulns/cors.txt" -t "$CORSY_THREADS" --headers "$HEADER" 2>>"$LOGFILE" >/dev/null
 		else
 			end_func "No webs/webs_all.txt file found, CORS Scan skipped." "${FUNCNAME[0]}"
 			return
@@ -4248,9 +4248,9 @@ function ssrf_checks() {
 			printf "${yellow}\n[$(date +'%Y-%m-%d %H:%M:%S')] Running: SSRF Payload Generation${reset}\n\n"
 
 			# Generate temporary SSRF payloads
-			qsreplace "$COLLAB_SERVER_FIX" <"gf/ssrf.txt" | sed '/FUZZ/!d' | anew -q ".tmp/tmp_ssrf.txt"
+			qsreplace "$COLLAB_SERVER_FIX" <"gf/ssrf.txt" | sed '/FFUFHASH/!d' | anew -q ".tmp/tmp_ssrf.txt"
 
-			qsreplace "$COLLAB_SERVER_URL" <"gf/ssrf.txt" | sed '/FUZZ/!d' | anew -q ".tmp/tmp_ssrf.txt"
+			qsreplace "$COLLAB_SERVER_URL" <"gf/ssrf.txt" | sed '/FFUFHASH/!d' | anew -q ".tmp/tmp_ssrf.txt"
 
 			# Run FFUF to find requested URLs
 			printf "${yellow}\n[$(date +'%Y-%m-%d %H:%M:%S')] Running: FFUF for SSRF Requested URLs${reset}\n\n"
@@ -4934,7 +4934,7 @@ function fuzzparams() {
 				fi
 
 				# Execute Nuclei with the fuzzing templates
-				nuclei -l webs/url_extract_nodupes.txt -nh -rl "$NUCLEI_RATELIMIT" -silent -retries 2 ${NUCLEI_EXTRA_ARGS} -t ${NUCLEI_TEMPLATES_PATH}/dast -dast -j -o ".tmp/fuzzparams_json.txt" <"webs/url_extract_nodupes.txt" 2>>"$LOGFILE" >/dev/null
+				nuclei -H "$HEADER" -l webs/url_extract_nodupes.txt -nh -rl "$NUCLEI_RATELIMIT" -silent -retries 2 ${NUCLEI_EXTRA_ARGS} -t ${NUCLEI_TEMPLATES_PATH}/dast -dast -j -o ".tmp/fuzzparams_json.txt" <"webs/url_extract_nodupes.txt" 2>>"$LOGFILE" >/dev/null
 
 			else
 				printf "${yellow}\n[$(date +'%Y-%m-%d %H:%M:%S')] Running: Axiom with Nuclei${reset}\n\n"
@@ -4944,7 +4944,7 @@ function fuzzparams() {
 					axiom-exec "git clone https://github.com/projectdiscovery/fuzzing-templates /home/op/fuzzing-templates" &>/dev/null
 				fi
 
-				axiom-scan webs/url_extract_nodupes.txt -m nuclei \
+				axiom-scan webs/url_extract_nodupes.txt -m nuclei -H "$HEADER" \
 					--remote-folder "/home/op/fuzzing-templates" \
 					-nh -rl "$NUCLEI_RATELIMIT" \
 					-silent -retries 2 "$NUCLEI_EXTRA_ARGS" -dast -j -o ".tmp/fuzzparams_json.txt" $AXIOM_EXTRA_ARGS 2>>"$LOGFILE" >/dev/null
@@ -5662,6 +5662,7 @@ function recon() {
 	wordlist_gen_roboxtractor
 	password_dict
 	url_ext
+	fuzzparams
 }
 
 function multi_recon() {
