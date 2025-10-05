@@ -5297,6 +5297,8 @@ function start() {
 
 	#[[ -n "$domain" ]] && ipcidr_target $domain
 
+  addCookieToHeaderByDomain
+
 	if [[ -z $domain ]]; then
 		if [[ -n $list ]]; then
 			if [[ -z $domain ]]; then
@@ -5345,6 +5347,21 @@ function start() {
 	printf "\n"
 	printf "${bred}[$(date +'%Y-%m-%d %H:%M:%S')] Target: ${domain}\n\n"
 }
+
+ function addCookieToHeaderByDomain() {
+    if [[ -n $domain ]]; then
+      if [[ -n ${COOKIES[$domain]} ]]; then
+        COOKIE_STRING="Cookie: ${COOKIES[$domain]}"
+        if [[ -n $HEADER ]]; then
+          if ! grep -q -i '^Cookie:' <<<"$HEADER"; then
+            HEADER="$HEADER\n$COOKIE_STRING"
+          fi
+        else
+          HEADER="$COOKIE_STRING"
+        fi
+      fi
+    fi
+ }
 
 function end() {
 
