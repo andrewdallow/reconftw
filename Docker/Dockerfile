@@ -24,8 +24,8 @@ FROM ubuntu:latest AS base
 
 LABEL org.label-schema.name='reconftw'
 LABEL org.label-schema.description='A simple script for full recon'
-LABEL org.label-schema.usage='https://github.com/six2dez/reconftw'
-LABEL org.label-schema.url='https://github.com/six2dez/reconftw'
+LABEL org.label-schema.usage='https://github.com/andrewdallow/reconftw'
+LABEL org.label-schema.url='https://github.com/andrewdallow/reconftw'
 LABEL org.label-schema.docker.cmd.devel='docker run --rm -ti six2dez/reconftw'
 LABEL MAINTAINER="six2dez"
 
@@ -37,7 +37,7 @@ ARG LANG
 ARG LANGUAGE
 
 ARG GIT_REPOSITORY_AXIOM="https://github.com/attacksurge/ax.git"
-ARG GIT_REPOSITORY_RECONFTW="https://github.com/six2dez/reconftw"
+ARG GIT_REPOSITORY_RECONFTW="https://github.com/andrewdallow/reconftw"
 
 ENV COLLAB_SERVER=$COLLAB_SERVER
 ENV XSS_SERVER=$XSS_SERVER

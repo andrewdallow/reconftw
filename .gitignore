@@ -4,6 +4,7 @@ output/
 .obsidian/
 test/
 .trunk/
+.config/
 
 #Ignoring compressed files
 *.tar

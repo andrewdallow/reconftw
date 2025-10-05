@@ -227,6 +227,7 @@ function tools_installed() {
 		["enumerepo"]="enumerepo"
 		["Web-Cache-Vulnerability-Scanner"]="Web-Cache-Vulnerability-Scanner"
 		["subfinder"]="subfinder"
+		["naabu"]="naabu"
 		["ghauri"]="ghauri"
 		["hakip2host"]="hakip2host"
 		["crt"]="crt"
@@ -310,38 +311,6 @@ function google_dorks() {
 		end_func "Results are saved in $domain/osint/dorks.txt" "${FUNCNAME[0]}"
 	else
 		if [[ $GOOGLE_DORKS == false ]] || [[ $OSINT == false ]]; then
-			printf "\n%b[%s] %s skipped due to mode or configuration settings.%b\n" "$yellow" "$(date +'%Y-%m-%d %H:%M:%S')" "${FUNCNAME[0]}" "$reset"
-		else
-			printf "%b[%s] %s has already been processed. To force execution, delete:\n    %s/.%s %b\n\n" "$yellow" "$(date +'%Y-%m-%d %H:%M:%S')" "${FUNCNAME[0]}" "$called_fn_dir" "${FUNCNAME[0]}" "$reset"
-		fi
-	fi
-}
-
-function github_dorks() {
-	mkdir -p osint
-
-	if { [[ ! -f "$called_fn_dir/.${FUNCNAME[0]}" ]] || [[ $DIFF == true ]]; } && [[ $GITHUB_DORKS == true ]] && [[ $OSINT == true ]]; then
-		start_func "${FUNCNAME[0]}" "Running: Github Dorks in process"
-
-		if [[ -s $GITHUB_TOKENS ]]; then
-			if [[ $DEEP == true ]]; then
-				if ! gitdorks_go -gd "${tools}/gitdorks_go/Dorks/medium_dorks.txt" -nws 20 -target "$domain" -tf "$GITHUB_TOKENS" -ew 3 | anew -q osint/gitdorks.txt; then
-					printf "%b[!] gitdorks_go command failed.%b\n" "$bred" "$reset"
-					return 1
-				fi
-			else
-				if ! gitdorks_go -gd "${tools}/gitdorks_go/Dorks/smalldorks.txt" -nws 20 -target "$domain" -tf "$GITHUB_TOKENS" -ew 3 | anew -q osint/gitdorks.txt; then
-					printf "%b[!] gitdorks_go command failed.%b\n" "$bred" "$reset"
-					return 1
-				fi
-			fi
-		else
-			printf "\n%b[%s] Required file %s does not exist or is empty.%b\n" "$bred" "$(date +'%Y-%m-%d %H:%M:%S')" "$GITHUB_TOKENS" "$reset"
-			return 1
-		fi
-		end_func "Results are saved in $domain/osint/gitdorks.txt" "${FUNCNAME[0]}"
-	else
-		if [[ $GITHUB_DORKS == false ]] || [[ $OSINT == false ]]; then
 			printf "\n%b[%s] %s skipped due to mode or configuration settings.%b\n" "$yellow" "$(date +'%Y-%m-%d %H:%M:%S')" "${FUNCNAME[0]}" "$reset"
 		else
 			printf "%b[%s] %s has already been processed. To force execution, delete:\n    %s/.%s %b\n\n" "$yellow" "$(date +'%Y-%m-%d %H:%M:%S')" "${FUNCNAME[0]}" "$called_fn_dir" "${FUNCNAME[0]}" "$reset"
@@ -3010,7 +2979,7 @@ function portscan() {
 		if [[ $PORTSCAN_ACTIVE == true ]]; then
 			if [[ $AXIOM != true ]]; then
 				if [[ -s ".tmp/ips_nocdn.txt" ]]; then
-					$SUDO nmap $PORTSCAN_ACTIVE_OPTIONS -iL .tmp/ips_nocdn.txt -oA hosts/portscan_active 2>>"$LOGFILE" >/dev/null
+				  naabu -list .tmp/ips_nocdn.txt -exclude-cdn -silent -nmap-cli "nmap $PORTSCAN_ACTIVE_OPTIONS -oA hosts/portscan_active" 2>>"$LOGFILE" >/dev/null
 				fi
 			else
 				if [[ -s ".tmp/ips_nocdn.txt" ]]; then
@@ -5614,7 +5583,6 @@ function recon() {
 	ip_info
 	emails
 	google_dorks
-	#github_dorks
 	github_repos
 	metadata
 	apileaks

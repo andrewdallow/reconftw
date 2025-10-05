@@ -86,6 +86,7 @@ declare -A gotools=(
 	["csprecon"]="go install github.com/edoardottt/csprecon/cmd/csprecon@latest"
 	["VhostFinder"]="go install -v github.com/wdahlenburg/VhostFinder@latest"
 	["misconfig-mapper"]="go install github.com/intigriti/misconfig-mapper/cmd/misconfig-mapper@latest"
+	["naabu"]="go install -v github.com/projectdiscovery/naabu/v2/cmd/naabu@latest"
 )
 
 # Declare pipx tools and their paths
