@@ -75,12 +75,12 @@ apt full-upgrade -f -y --allow-downgrades
 apt install -y --no-install-recommends apt-utils ca-certificates curl git lsb-release nano wget vim jq htop net-tools dnsutils nmap python3 python3-pip unzip whois zip
 
 wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
+sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
 
 # Install chrome
-sudo apt update
-sudo apt install libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxkbcommon-x11-0 libxcomposite-dev libxdamage1 libxrandr2 libgbm-dev libpangocairo-1.0-0 libasound2t64
-sudo apt install google-chrome-stable
+apt update
+apt install libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxkbcommon-x11-0 libxcomposite-dev libxdamage1 libxrandr2 libgbm-dev libpangocairo-1.0-0 libasound2t64
+apt install google-chrome-stable
 
 ###>> Congifure Locales <<###
 apt install -y --no-install-recommends locales
