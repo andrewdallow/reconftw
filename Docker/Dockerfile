@@ -101,6 +101,7 @@ mkdir -p /reconftw
 git clone ${GIT_REPOSITORY_RECONFTW} /reconftw
 cd /reconftw
 sh -c 'echo 1 | ./install.sh'
+nuclei -update-templates
 
 ###>> Restore .bashrc <<###
 mv /root/original.bashrc /root/.bashrc
