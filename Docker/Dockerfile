@@ -76,7 +76,7 @@ apt install -y --no-install-recommends apt-utils ca-certificates curl git lsb-re
 
 # Install chrome
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-apt install ./google-chrome-stable_current_amd64.deb
+apt install ./google-chrome-stable_current_amd64.deb -y
 
 ###>> Congifure Locales <<###
 apt install -y --no-install-recommends locales
