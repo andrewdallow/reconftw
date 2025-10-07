@@ -72,7 +72,8 @@ cp /root/.bashrc /root/original.bashrc
 apt clean all
 apt update
 apt full-upgrade -f -y --allow-downgrades
-apt install -y --no-install-recommends apt-utils ca-certificates curl git lsb-release nano wget vim jq htop net-tools dnsutils nmap python3 python3-pip unzip whois
+apt install -y --no-install-recommends apt-utils ca-certificates curl git lsb-release nano wget vim jq htop net-tools dnsutils nmap python3 python3-pip unzip whois snapd
+snap install chromium
 
 ###>> Congifure Locales <<###
 apt install -y --no-install-recommends locales
