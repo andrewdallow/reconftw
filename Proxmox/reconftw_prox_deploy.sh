@@ -137,7 +137,7 @@ pct exec $CONTAINER_ID -- bash -c "apt update && \
    DEBIAN_FRONTEND=noninteractive apt -y upgrade && \
    apt install -y git sudo python3 python3-pip && \
    cd /opt && \
-   git clone --recursive https://github.com/six2dez/reconftw.git && \
+   git clone --recursive https://github.com/andrewdallow/reconftw.git && \
    cd reconftw && \
    ./install.sh" || error_exit "Error installing ReconFTW"
 

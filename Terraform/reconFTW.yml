@@ -25,7 +25,7 @@
         state: present
     - name: Clone ReconFTW
       git:
-        repo: https://github.com/six2dez/reconftw.git
+        repo: https://github.com/andrewdallow/reconftw.git
         dest: /opt/reconftw/
         clone: yes
         update: yes  
