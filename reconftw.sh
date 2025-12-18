@@ -6898,14 +6898,14 @@ SCRIPTPATH="$(
 	pwd -P
 )"
 . "${SCRIPTPATH}"/reconftw.cfg || {
-	echo "Error importing reconftw.ctg"
+	echo "Error importing reconftw.cfg"
 	exit 1
 }
 
 if [[ -s $CUSTOM_CONFIG ]]; then
 	# shellcheck source=/home/six2dez/Tools/reconftw/custom_config.cfg
 	. "${CUSTOM_CONFIG}" || {
-		echo "Error importing reconftw.ctg"
+		echo "Error importing reconftw.cfg"
 		exit 1
 	}
 fi
