@@ -2962,7 +2962,7 @@ function screenshot() {
 		# Run nuclei or axiom-scan based on AXIOM flag
 		if [[ $AXIOM != true ]]; then
 			if [[ -s "webs/webs_all.txt" ]]; then
-				nuclei -H "$HEADER" -headless -id screenshot -V dir='screenshots' <webs/webs_all.txt 2>>"$LOGFILE"
+				nuclei -H "$HEADER" -headless -id screenshot -V dir='screenshots' -t "${NUCLEI_TEMPLATES_PATH}" <webs/webs_all.txt 2>>"$LOGFILE"
 			fi
 		else
 			if [[ -s "webs/webs_all.txt" ]]; then
@@ -3388,9 +3388,9 @@ function nuclei_check() {
 			cut -d';' -f1 webs/webs_wafs.txt | sed 's/https\?:\/\///' | sed 's/\/$//' | sort -u >.tmp/waf_hosts.txt
 			awk -F/ '{print $3}' .tmp/webs_subs.txt | sed 's/\:$//' | while read -r host; do
 				if grep -q "^$host$" .tmp/waf_hosts.txt; then
-					grep "://${host}[:/\n]" .tmp/webs_subs.txt | anew -q "$WAF_LIST"
+					grep -E "://${host}(:|/|$)" .tmp/webs_subs.txt | anew -q "$WAF_LIST"
 				else
-					grep "://${host}[:/\n]" .tmp/webs_subs.txt | anew -q "$NOWAF_LIST"
+					grep -E "://${host}(:|/|$)" .tmp/webs_subs.txt | anew -q "$NOWAF_LIST"
 				fi
 			done
 		else
@@ -3400,7 +3400,7 @@ function nuclei_check() {
 		# Include slow hosts (429/403) into WAF list as well
 		if [[ -s .tmp/slow_hosts.txt ]]; then
 			while read -r host; do
-				grep "://${host}[:/\n]" .tmp/webs_subs.txt | anew -q "$WAF_LIST"
+				grep -E "://${host}(:|/|$)" .tmp/webs_subs.txt | anew -q "$WAF_LIST"
 			done <.tmp/slow_hosts.txt
 		fi
 
@@ -3608,7 +3608,7 @@ function fuzz() {
 				>.tmp/webs_normal.txt
 				if [[ -s .tmp/slow_hosts.txt ]]; then
 					while read -r host; do
-						grep "://${host}[:/\n]" webs/webs_all.txt | anew -q .tmp/webs_slow.txt
+						grep -E "://${host}(:|/|$)" webs/webs_all.txt | anew -q .tmp/webs_slow.txt
 					done <.tmp/slow_hosts.txt
 					comm -23 <(sort -u webs/webs_all.txt) <(sort -u .tmp/webs_slow.txt) >.tmp/webs_normal.txt
 				else
@@ -3830,7 +3830,7 @@ function urlchecks() {
 						>.tmp/katana_targets_normal.txt
 						if [[ -s .tmp/slow_hosts.txt ]]; then
 							while read -r host; do
-								grep "://${host}[:/\n]" webs/webs_all.txt | anew -q .tmp/katana_targets_slow.txt
+								grep -E "://${host}(:|/|$)" webs/webs_all.txt | anew -q .tmp/katana_targets_slow.txt
 							done <.tmp/slow_hosts.txt
 							comm -23 <(sort -u webs/webs_all.txt) <(sort -u .tmp/katana_targets_slow.txt) >.tmp/katana_targets_normal.txt
 						else
@@ -5476,7 +5476,7 @@ function remove_big_files() {
 function notification() {
 	if [[ -n $1 ]] && [[ -n $2 ]]; then
 		if [[ $NOTIFICATION == true ]]; then
-			NOTIFY="notify -silent"
+			NOTIFY=("notify" "-silent")
 		else
 			NOTIFY=""
 		fi
@@ -5508,7 +5508,7 @@ function notification() {
 		if [[ -n $NOTIFY ]]; then
 			# Remove color codes for the notification
 			clean_text=$(printf "%b" "${text} - ${domain}" | sed 's/\x1B\[[0-9;]*[JKmsu]//g')
-			printf "%s" "${clean_text}" | $NOTIFY >/dev/null 2>&1
+			printf "%s" "${clean_text}" | "${NOTIFY[@]}" >/dev/null 2>&1
 		fi
 	fi
 }
@@ -6119,7 +6119,7 @@ function osint() {
 	github_repos
 	metadata
 	apileaks
-	third_party_misconfigs
+	#third_party_misconfigs
 	zonetransfer
 	favicon
 	mail_hygiene
@@ -6223,7 +6223,7 @@ function recon() {
 	github_repos
 	metadata
 	apileaks
-	third_party_misconfigs
+	#third_party_misconfigs
 	zonetransfer
 	favicon
 
